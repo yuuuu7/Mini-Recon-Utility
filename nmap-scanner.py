@@ -1,16 +1,16 @@
-import nmap
+from prettytable import PrettyTable
+x = PrettyTable()
+x.field_names = ["Host", "Hostname", "Protocol", "Port ID", "State", "Product", "Extra Info", "Reason", "CPE"]
 
+import nmap
 nm = nmap.PortScanner()
 
-nm.scan('127.0.0.1', '22-443')
-
+nm.scan('scanme.nmap.org', '22-443')
 for host in nm.all_hosts():
-    print('Host : %s (%s)' % (host, nm[host].hostname()))
-    print('State : %s' % nm[host].state())
     for proto in nm[host].all_protocols():
-        print('Protocol : %s' % proto)
-
         lport = list(nm[host][proto].keys())
         lport.sort()
-        for port in lport:
-            print ('port : %s\tstate : %s' % (port, nm[host][proto][port]['state']))
+        for port in lport[:10]:
+            x.add_row([host, nm[host].hostname(), proto, port, nm[host][proto][port]['state'], nm[host][proto][port].get('name',""), nm[host][proto][port].get('product',""), nm[host][proto][port].get('reason',""), nm[host][proto][port].get('cpe',"")])
+print(x)
+
