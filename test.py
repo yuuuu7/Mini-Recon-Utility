@@ -1,25 +1,21 @@
-import nmap
+class nmapScanner:
+    """
+    This class is used to scan a list of hosts using nmap.
+    Args:
+        targets (str): A string of hosts to scan. (e.g "localhost scanme.nmap.org")
+        options (str): A string of nmap options to use. (e.g "-sU -sT --top-ports 10 -sV -sC --traceroute -O")
+    """
 
-def scan(host, ports, protocols):
-    nm_scan = nmap.PortScanner()
-    nm_scan.scan(host, ports, protocols, arguments='-O -sC -sV --traceroute')
-    return nm_scan
-
-def main():
-    # Set target IP and top 10 ports
-    target_ip = 'localhost scanme.nmap.org'
-    ports = ','.join(str(i) for i in range(1, 11))
-
-    # Set protocols to scan for
-    protocols = ['tcp', 'udp']
-
-    # Run the scan and store the results
-    results = scan(target_ip, ports, protocols)
-
-    # Print scan results
-    print(results)
-
-if __name__ == '__main__':
-    main()
-
-
+    def __init__(self, targets: str, options: str):
+        self.targets = targets
+        self.options = options
+    
+    def run(self):
+        """
+        Starts the scan
+        """
+        print("Checking status of hosts...")
+        live_hosts = self.is_alive()
+        if(live_hosts is not False):
+            scan_results = self.perform_scan()
+            self.generate_table(scan_results)
