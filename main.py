@@ -1,6 +1,8 @@
-from test import portScanner
+from nmap_scanner import Scanner
 
-hosts = "localhost"
-options = "-sU -sT --top-ports 10"
-ps = portScanner(targets = hosts, options = options)
-ps.run()
+IP = 'localhost scanme.nmap.org'
+options = '-p 22-443 -sTU --top-ports 10 -O -sV -sC'
+
+nm_scan = Scanner(IP, options)
+nm_scan.scan_ports()
+
