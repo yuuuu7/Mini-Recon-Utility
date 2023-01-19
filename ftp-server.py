@@ -12,7 +12,7 @@ from pyftpdlib.servers import FTPServer
 authorizer = DummyAuthorizer() # handle permission and user
 
 # Define an anonymous user and home directory having read permissions
-authorizer.add_anonymous('C:/PSEC-CA2/PSEC-CA2/ftpServerData' , perm='elradfmw') # you should specify your own home directory
+authorizer.add_anonymous('./ftpServerData' , perm='elradfmw') # you should specify your own home directory
 
 # Instantiate FTP handler class
 handler = FTPHandler #  understand FTP protocol
