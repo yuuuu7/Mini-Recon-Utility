@@ -1,5 +1,30 @@
-from scapy.all import send, IP, TCP, ICMP, UDP   
+from scapy.all import send, IP, TCP, ICMP, UDP  
+import re 
 # srp and sr1 is for layer 2, send for layer 3
+
+def valid_URL(str):
+ 
+    # Regex to check valid URL 
+    regex = ("(www.)?" +
+             "[a-zA-Z0-9@:%._\\+~#?&//=]" +
+             "{2,256}\\.[a-z]" +
+             "{2,6}\\b([-a-zA-Z0-9@:%" +
+             "._\\+~#?&//=]*)")
+     
+    # Compile the ReGex
+    p = re.compile(regex)
+ 
+    # If the string is empty 
+    # return false
+    if (str == None):
+        return False
+ 
+    # Return if the string 
+    # matched the ReGex
+    if(re.search(p, str)):
+        return True
+    else:
+        return False
 
 def send_packet(src_addr:str , src_port:int , dest_addr:str, 
                  dest_port:int, pkt_type:str, pkt_data:str)  -> bool:
@@ -36,9 +61,24 @@ def print_custom_menu():
   print("************************")
   print("* Custom Packet        *")
   print("************************\n")
-  src_addr = input("Enter Source address of Packet: ")
+
+  while True:
+    src_addr = input("Enter Source address of Packet: ")
+    valid_URL(src_addr)
+    if valid_URL(src_addr) == False:
+      print("Invalid Input, please try again.")
+    else:
+      break
+
   src_port = int(input("Enter Source Port of Packet: "))
-  dest_addr= input("Enter Destination address of Packet: ")
+  while True:
+    dest_addr= input("Enter Destination address of Packet: ")
+    valid_URL(dest_addr)
+    if valid_URL(dest_addr) == False:
+      print("Invalid Input, please try again.")
+    else:
+      break
+
   dest_port= int(input("Enter Destination Port of Packet: "))
   pkt_type = input("Enter Type (T) TCP, (U) UDP, (I) ICMP echo request (T/U/I): ")
 

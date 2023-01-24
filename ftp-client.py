@@ -15,16 +15,20 @@ FTP_ADDRESS = socket.gethostbyname(socket.gethostname())
 # Download file from folder defined in ftp-server.py
 def getFile(ftp, filename):
   try:
-    ftp.retrbinary("RETR " + filename ,open(filename, 'wb').write)
+    ftp.cwd(FTP_DIRECTORY_server)
+    ftp.retrbinary(f"RETR {filename}", open(f"{FTP_DIRECTORY_client}/{filename}", 'wb').write)
     return(True)
   except:
     return(False)
 
-def putFile(ftp, filepath):
+def putFile(ftp, filename):
+    try:
+        ftp.cwd(FTP_DIRECTORY_client)
+        ftp.retrbinary(f"RETR {filename}", open(f"{FTP_DIRECTORY_server}/{filename}", 'wb').write)
+        return True
+    except:
+        return False
 
-  # Open the file to be uploaded in binary mode
-  with open(filepath, 'rb') as file:
-      ftp.storbinary(f'STOR {filepath}', file)
   
 
 
@@ -35,6 +39,7 @@ while True:
     choice = int(input("\n1. Download File\n2. Upload File\n\n>>"))
     if choice == 1:
         file_download = 'ftpServerData-file.txt' # you should specify your own file
+
         if (getFile(ftp,file_download)):
             os.system('cls')
             print(f'Downloaded file: {file_download}\n')
