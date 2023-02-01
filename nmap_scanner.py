@@ -25,5 +25,6 @@ class Scanner:
                     cpe = self.nm[host][protocol][port]["cpe"]
                     table_data.append([host, hostname, protocol, port_id, state, product, extra_info, reason, cpe])
         print(tabulate(table_data, headers=["Host", "Hostname", "Protocol", "Port ID", "State", "Product", "Extra Info", "Reason", "CPE"], tablefmt="fancy_grid"))
+        input("\nEnter any key to continue...")
 
 
