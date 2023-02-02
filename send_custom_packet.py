@@ -6,27 +6,25 @@ from colorama import Fore,Style
 
 def valid_URL(str):
 
-    # Regex to check valid URL 
-    regex = ("(www.)?" +
-            "[a-zA-Z0-9@:%._\\+~#?&//=]" +
-            "{2,256}\\.[a-z]" +
-            "{2,6}\\b([-a-zA-Z0-9@:%" +
-            "._\\+~#?&//=]*)")
-    
-    # Compile the ReGex
-    p = re.compile(regex)
+    # IP address pattern
+    ip_pattern = re.compile(r'^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$')
+    # www.example.com pattern
+    www_pattern = re.compile(r'^www\.[a-zA-Z0-9]+\.[a-z]{2,}$')
+    # http://ww.example.com pattern
+    http_pattern = re.compile(r'^http://www\.[a-zA-Z0-9]+\.[a-z]{2,}$')
+    # https://example.com pattern
+    https_pattern = re.compile(r'^https://[a-zA-Z0-9]+\.[a-z]{2,}$')
 
-    # If the string is empty 
-    # return false
-    if (str == None):
-        return False
-
-    # Return if the string 
-    # matched the ReGex
-    if(re.match(p, str)):
-        return True
+    if re.match(ip_pattern, str):
+        return "IP address"
+    elif re.match(www_pattern, str):
+        return "Plain address"
+    elif re.match(http_pattern, str):
+        return "HTTP address"
+    elif re.match(https_pattern, str):
+        return "HTTPS address"
     else:
-        return False
+        return "Invalid address"
 
 def send_packet(src_addr:str , src_port:int , dest_addr:str, 
                 dest_port:int, pkt_type:str, pkt_data:str)  -> bool:
