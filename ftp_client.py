@@ -16,20 +16,39 @@ def run_ftp_client():
 
     # Download file from folder defined in ftp-server.py
     def getFile(ftp, filename):
+        ftp.cwd(FTP_DIRECTORY_server)
         try:
-            ftp.cwd(FTP_DIRECTORY_server)
-            ftp.retrbinary(f"RETR {filename}", open(f"{FTP_DIRECTORY_client}/{filename}", 'wb').write)
-            return(True)
+            ftp.voidcmd(f"TYPE I")
+            ftp.size(filename)
+            # If the file does not exist, an error message is returned and an exception is raised.
         except:
-            return(False)
+            print(f"File '{filename}' does not exist on the FTP server\n")
+            input("Enter any key to continue...")
+            return False
+    
+        ftp.retrbinary(f"RETR {filename}", open(f"{FTP_DIRECTORY_client}/{filename}", 'wb').write)
+        os.system('cls')
+        print(f'Successfully Downloaded file: {file_download}\n')
+        input("Enter any key to continue...")
+        return True
+
 
     def putFile(ftp, filename):
+        ftp.cwd(FTP_DIRECTORY_client)
         try:
-            ftp.cwd(FTP_DIRECTORY_client)
-            ftp.retrbinary(f"RETR {filename}", open(f"{FTP_DIRECTORY_server}/{filename}", 'wb').write)
-            return True
+            ftp.voidcmd(f"TYPE I")
+            ftp.size(filename)
+            # If the file does not exist, an error message is returned and an exception is raised.
         except:
+            print(f"File '{filename}' does not exist on the FTP server\n")
+            input("Enter any key to continue...")
             return False
+    
+        ftp.retrbinary(f"RETR {filename}", open(f"{FTP_DIRECTORY_server}/{filename}", 'wb').write)
+        os.system('cls')
+        print(f'Successfully Downloaded file: {file_download}\n')
+        input("Enter any key to continue...")
+        return True
 
 
 
@@ -38,19 +57,23 @@ def run_ftp_client():
             os.system('cls')
             choice = int(input("Welcome to the FTP Client Menu!\n\n1. Download File\n2. Upload File\n" + Fore.RED + "3. Quit" + Style.RESET_ALL + "\n\n>>"))
             if choice == 1:
-                #file_download = input("Enter the file name that you want to download: ") <- this is if you want to add in the flexibility of choosing which files you want to download
-                file_download = 'ftpServerData-file.txt' 
 
-                if (getFile(ftp,file_download)):
-                    os.system('cls')
-                    print(f'Successfully Downloaded file: {file_download}\n')
-                    input("Enter any key to continue...")
+
+                files = os.listdir(FTP_DIRECTORY_server)
+                
+                os.system('cls')
+                print("List of Files" + Fore.GREEN + " present " + Style.RESET_ALL + "in the FTP Server's Directory available for download:\n")
+                for index, filename in enumerate(files):
+                    print(f"{index + 1}. {filename}")
+
+                file_download = input("\nEnter the file name that you want to download: ") #<- this is if you want to add in the flexibility of choosing which files you want to download
+                #file_download = 'ftpServerData-file.txt' 
+
+                if(getFile(ftp,file_download)):
                     break
                 else:
-                    os.system('cls')
-                    print(f'Error in downloading: {file_download}\n')
-                    input("Enter any key to continue...")
                     break
+
             elif choice == 2:
                 #file_download = input("Enter the file name that you want to upload: ") <- this is if you want to add in the flexibility of choosing which files you want to upload
                 file_upload = 'ftpClientData-file.txt'
