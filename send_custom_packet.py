@@ -1,5 +1,5 @@
 from scapy.all import send, IP, TCP, ICMP, UDP  
-import re 
+import re, os
 from colorama import Fore,Style
 # srp and sr1 is for layer 2, send for layer 3
 
@@ -11,20 +11,20 @@ def valid_URL(str):
     # www.example.com pattern
     www_pattern = re.compile(r'^www\.[a-zA-Z0-9]+\.[a-z]{2,}$')
     # http://ww.example.com pattern
-    http_pattern = re.compile(r'^http://www\.[a-zA-Z0-9]+\.[a-z]{2,}$')
+    http_pattern = re.compile(r'^http?://www\.[a-zA-Z0-9]+\.[a-z]{2,}$')
     # https://example.com pattern
-    https_pattern = re.compile(r'^https://[a-zA-Z0-9]+\.[a-z]{2,}$')
+    https_pattern = re.compile(r'^https?://www\.[a-zA-Z0-9]+\.[a-z]{2,}$')
 
     if re.match(ip_pattern, str):
-        return "IP address"
+        return True
     elif re.match(www_pattern, str):
-        return "Plain address"
+        return True
     elif re.match(http_pattern, str):
-        return "HTTP address"
+        return True
     elif re.match(https_pattern, str):
-        return "HTTPS address"
+        return True
     else:
-        return "Invalid address"
+        return False
 
 def send_packet(src_addr:str , src_port:int , dest_addr:str, 
                 dest_port:int, pkt_type:str, pkt_data:str)  -> bool:
@@ -54,54 +54,120 @@ def send_packet(src_addr:str , src_port:int , dest_addr:str,
     return False
 
 def get_valid_src_addr():
-    while True:
-        src_addr = input("Enter Source address of Packet: ")
-        if valid_URL(src_addr) == False:
-            print("Invalid Input, please try again.")
-        else:
-            return src_addr
+  """
+    Prompts the user to enter a source address of a packet.
+
+    Returns:
+    -------
+    str : A string containing the source address of the packet.
+  """
+  while True:
+      src_addr = input("Enter Source address of Packet (Accepts IP-Addr/www/http/https)\n>> ")
+      if valid_URL(src_addr) == False:
+          print("\nInvalid Input, please try again.\n")
+      else:
+          return src_addr
 
 def get_valid_dest_addr():
+
+    """
+    Prompts the user to enter a destination address of a packet.
+
+    Returns:
+    -------
+    str : A string containing the destination address of the packet.
+    """
+
     while True:
-        dest_addr = input("Enter Destination address of Packet: ")
+        dest_addr = input("Enter Destination address of Packet (Accepts IP-Addr/www/http/https)\n>> ")
         if valid_URL(dest_addr) == False:
-            print("Invalid Input, please try again.")
+            print("\nInvalid Input, please try again.\n")
         else:
             return dest_addr
 
 def get_valid_source_port():
+  """
+    Prompts the user to enter a source port of a packet.
+
+    Returns:
+    -------
+    int : An integer containing the source port of the packet.
+    """
   while True:
     try:
-      src_port = int(input("Enter Source Port of Packet: "))
-      if src_port in range(0, 65536):
+      src_port = int(input("Enter Source Port of Packet (1-65535)\n>> "))
+      if src_port in range(1, 65536):
         return src_port
       else:
-        print("Please enter only ports from 0-65536!")
+        print("\nPlease enter only ports from 1-65535!\n")
     except ValueError:
-      print("Enter an integer only!")
+      print("\nEnter Integer values only!\n")
 
 def get_valid_dest_port():
+
+  """
+    Prompts the user to enter a destination port of a packet.
+
+    Returns:
+    -------
+    int : An integer containing the destination port of the packet.
+
+    Raises:
+    ValueError: If the user inputs a non-integer value.
+
+    """
+
   while True:
     try:
-      dest_port = int(input("Enter Destination Port of Packet: "))
-      if dest_port in range(0, 65536):
+      dest_port = int(input("Enter Destination Port of Packet (1-65535)\n>> "))
+      if dest_port in range(1, 65536):
         return dest_port
       else:
-        print("Please enter only ports from 0-65535!")
+        print("\nPlease enter only ports from 1-65535!\n")
     except ValueError:
-      print("Enter Integer values only!")
+      print("\nEnter Integer values only!\n")
 
 def get_valid_pkt_type():
+
+  """
+    Prompts the user to enter the type of packet.
+
+    Returns:
+    -------
+    str : A string containing the type of packet ('T' - TCP, 'U' - UDP, 'I' - ICMP).
+    """
+
   while True:
-    pkt_type = input("Enter Type (T) TCP, (U) UDP, (I) ICMP echo request (T/U/I): ")
-    if pkt_type == 'T' or pkt_type == 'U':
+    pkt_type = input("Enter Type (T) TCP, (U) UDP, (I) ICMP echo request (T/U/I)\n>> ").upper()
+    if pkt_type == 'T':
+      return pkt_type
+    if pkt_type == 'U':
       return pkt_type
     elif pkt_type == "I":
-      print(" Note: Port number for ICMP will be ignored")
+      print("\n*Note: Port number for ICMP will be ignored*")
+      input("\nPress Enter to continue...")
       return pkt_type
     else:
-      print("Please enter only Type (T) TCP, (U) UDP, (I) ICMP!")
+      print("\nPlease enter only Types (T) TCP, (U) UDP, (I) ICMP!\n")
 
+
+def get_valid_pkt_count():
+  
+  """
+    Prompts the user to enter the number of packets to send, and returns the number if it's a valid integer between 1 and 65535 (inclusive).
+    
+    Returns:
+    int : Number of packets to send
+    """
+  while True:
+    try:
+      pkt_count = int(input("How many Packets to send? (1-65535)\n>> " ))
+      if pkt_count in range(1,65536):
+        return pkt_count
+      else:
+        print("\nPlease enter only numbers from 1-65535!\n")
+    except ValueError:
+      print("\nEnter Integer values only!\n")
 
         
 class PacketSender:
@@ -111,31 +177,81 @@ class PacketSender:
 
     Returns: Nil
     """    
-    print("************************")
-    print("* Custom Packet        *")
-    print("************************\n")
 
-    src_addr = get_valid_src_addr()
-    src_port = get_valid_source_port()
-    dest_addr = get_valid_dest_addr()
-    dest_port = get_valid_dest_port()
-    pkt_type = get_valid_pkt_type()
+    options = {
+        'Source Address': '',
+        'Source Port': '',
+        'Destination Address': '',
+        'Destination Port': '',
+        'Packet Type': '',
+        'Packet Data': '',
+    }
 
+
+    while True:
+        os.system('cls' if os.name == 'nt' else 'clear')
+        
+        print("************************")
+        print("* Custom Packet        *")
+        print("************************\n")
+        
+        for i, (key, value) in enumerate(options.items(), start=1):
+          print(f'{i}. {key}: ' + Fore.GREEN + f'{value}\n' + Style.RESET_ALL)
+
+        if options['Source Address'] == '':
+          src_addr = get_valid_src_addr()
+          options['Source Address'] = src_addr
+
+        elif options['Source Port'] == '':
+          src_port = get_valid_source_port()
+          options['Source Port'] = src_port
           
-    pkt_data = input("Packet RAW Data (optional, DISM-DISM-DISM-DISM left blank): ")
-    if pkt_data == "":
-      pkt_data = "DISM-DISM-DISM-DISM"
-      
-    pkt_count = int(input("No of Packet to send (1-65535): " ))
-    start_now = input("Enter Y to Start, Any other return to main menu: ")
+        elif options['Destination Address'] == '':
+          dest_addr = get_valid_dest_addr()
+          options['Destination Address'] = dest_addr
 
-    if start_now == "": 
-      return
-    count = 0
-    for i in range(pkt_count):
-      if send_packet(src_addr, src_port, dest_addr, dest_port, pkt_type, pkt_data):
-        count  = count + 1
+        elif options['Destination Port'] == '':
+          dest_port = get_valid_dest_port()
+          options['Destination Port'] = dest_port
 
-    print("\n", count , "packet(s)" + Fore.GREEN + " sent" + Style.RESET_ALL + "!\n" )
-    input("Press any key to continue...")
+        elif options['Packet Type'] == '':
+          pkt_type = get_valid_pkt_type()
+
+          if pkt_type == 'T':
+            pkt_type_name = 'TCP'
+            options['Packet Type'] = pkt_type_name
+          if pkt_type == 'U':
+            pkt_type_name = 'UDP'
+            options['Packet Type'] = pkt_type_name
+          elif pkt_type == "I":
+            pkt_type_name = 'ICMP'
+            options['Packet Type'] = pkt_type_name
+
+        elif options['Packet Data'] == '':
+          pkt_data = input("Packet RAW Data (optional, DISM-DISM-DISM-DISM when left blank): ")
+          if pkt_data == "":
+            pkt_data = "DISM-DISM-DISM-DISM"
+          options['Packet Data'] = pkt_data
+        
+        else:
+          break
+
+    while True:      
+      pkt_count = get_valid_pkt_count()       
+      start_now = input("\nAre you sure you want to send " + Fore.RED + f"{pkt_count}" + Style.RESET_ALL+ " packets to " + Fore.GREEN + f"{dest_addr}" + Style.RESET_ALL + "? [Y/N]\n>> ")
+
+      if start_now.upper() == "Y": 
+        count = 0
+        for i in range(pkt_count):
+          if send_packet(src_addr, src_port, dest_addr, dest_port, pkt_type, pkt_data):
+            count  = count + 1
+
+        print("\n",count , "packet(s)" + Fore.GREEN + " sent" + Style.RESET_ALL + "!\n" )
+        input("Press any key to continue...")
+        break
+      elif start_now.upper() == "N":
+        break
+      else:
+        print("Please enter [Y/N] only.")
+
 
